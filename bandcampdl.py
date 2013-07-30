@@ -113,8 +113,8 @@ if __name__ == '__main__':
             current_size += len(chunk)
             f.write(chunk)
 
-            current_time = int(round(time.time() * 1000))
-            dl_speed = 1000. * (float(current_size) / 1024.) / (current_time - start_time)
+            diff_time = int(round(time.time() * 1000)) - start_time
+            dl_speed = (1000. * (float(current_size) / 1024.) / diff_time) if diff_time else 0.
 
             sys.stdout.write('\r%s - %02.2f%% [%06.2fkio/s]' % (filename, (100 * float(current_size) / total_size), dl_speed))
             sys.stdout.flush()
