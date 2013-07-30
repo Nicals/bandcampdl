@@ -1,0 +1,5 @@
+*.pyc
+*.sw[po]
+*~
+# because audio files are downloaded in this directory
+*.mp3

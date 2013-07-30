@@ -1,0 +1,18 @@
+BANDCAMPDL
+==========
+
+bandcampdl is a quick and dirty program used to download music album from bandcamp website.
+It don't have many capabilities, isn't configurable and may hangs if an album cannot be
+completely streamed.
+
+I surely will continue to work on it one day.
+
+## Usage
+
+You need to provide an url to an album with a stream capability.
+
+  bandcampdl -u 'http://herbrecordings.bandcamp.com/album/sampling-the-moon'
+
+The files will be downloaded in the current directory with a name corresponding to
+  '%2.2f - %s' % (<track number>, <track title>
+
