@@ -59,7 +59,7 @@ if __name__ == '__main__':
     trackinfo_regex = re.compile('trackinfo\s*:\s*(\[.+\]),\s*playing_from')
     m = trackinfo_regex.findall(result)
 
-    block_size = 8192
+    block_size = 512
 
     for track_definition in json.loads(m[0]):
         # track_definition contains the following keys:
