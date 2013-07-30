@@ -25,7 +25,7 @@
 #    + select file format when available (for now, only mp3 is downloaded
 #      and bandcampdl tries to get the better quality.
 #    + configurable file names
-#    + create a directory for albums with configurable name
+#    + configurable name for created files and directories
 #    + download an album from a random page
 #    + audio file metadata
 #
@@ -36,7 +36,9 @@ import argparse
 import json
 import re
 import time
+import datetime
 import urllib2
+import os
 import sys
 
 def get_url_response(url):
@@ -49,6 +51,7 @@ def get_url_response(url):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Bandcamp album downloader')
     parser.add_argument('-u', '--url', type=str, required=True, help='Url to bandcamp album')
+    parser.add_argument('-o', '--output', type=str, required=False, default=os.getcwd(), help='Output directory')
 
     args = parser.parse_args()
 
@@ -56,7 +59,29 @@ if __name__ == '__main__':
 
     result = get_url_response(url).read()
 
-    trackinfo_regex = re.compile('trackinfo\s*:\s*(\[.+\]),\s*playing_from')
+    # recover artist and album information
+    album_data_regex = re.compile(r'current\s*:\s*(\{.*\}),\s*is_preorder')
+    m = album_data_regex.findall(result)
+    album_definition = json.loads(m[0])
+
+    artist_name = album_definition['artist']
+    album_title = album_definition['title']
+    album_type = album_definition['type']
+    album_release_date = datetime.datetime.strptime(album_definition['release_date'], '%d %b %Y %H:%M:%S %Z')
+
+    # prepare directory to download tracks
+    album_dirpath = os.path.join(os.path.abspath(args.output), artist_name, '%4d - %s' % (album_release_date.year, album_title))
+    try:
+        os.makedirs(album_dirpath, 0755)
+    # if the directory already exists
+    except OSError, e:
+        # errno = 17 if the directory already exists
+        if e.errno != 17:
+            raise
+    print 'downloading %s album (%s) in %s' % (artist_name, album_title, album_dirpath)
+
+    # get tracks
+    trackinfo_regex = re.compile(r'trackinfo\s*:\s*(\[.+\]),\s*playing_from')
     m = trackinfo_regex.findall(result)
 
     block_size = 512
@@ -102,7 +127,7 @@ if __name__ == '__main__':
 
         start_time = int(round(time.time() * 1000))
 
-        f = open(filename, 'wb')
+        f = open(os.path.join(album_dirpath, filename), 'wb')
 
         while True:
             chunk = response.read(block_size)

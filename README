@@ -13,6 +13,8 @@ You need to provide an url to an album with a stream capability.
 
   bandcampdl -u 'http://herbrecordings.bandcamp.com/album/sampling-the-moon'
 
-The files will be downloaded in the current directory with a name corresponding to
-  '%2.2f - %s' % (<track number>, <track title>
+The optional -o parameter can be used to indicate where to download the album.
+bandcampdl will create a directory in this directory, using the artist name as the directory
+name. Another directory named '<album year> - <album name>' will be created.
+Audio tracks will be downloaded under the name '<track number>, <track title>'
 
