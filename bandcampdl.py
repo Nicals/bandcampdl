@@ -47,7 +47,7 @@ def get_url_response(url):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='PENtest Identifier & Sploit')
+    parser = argparse.ArgumentParser(description='Bandcamp album downloader')
     parser.add_argument('-u', '--url', type=str, required=True, help='Url to bandcamp album')
 
     args = parser.parse_args()
