@@ -7,14 +7,35 @@ completely streamed.
 
 I surely will continue to work on it one day.
 
+
 ## Usage
 
 You need to provide an url to an album with a stream capability.
 
-  bandcampdl -u 'http://herbrecordings.bandcamp.com/album/sampling-the-moon'
+    bandcampdl -u 'http://herbrecordings.bandcamp.com/album/sampling-the-moon'
 
 The optional -o parameter can be used to indicate where to download the album.
 bandcampdl will create a directory in this directory, using the artist name as the directory
 name. Another directory named '<album year> - <album name>' will be created.
 Audio tracks will be downloaded under the name '<track number>, <track title>'
+
+Directory names can be change with the -a and -b option.
+Similary, track names can be changed using the -t option.
+Arguments of these option are format string with named arguments.
+For artist and album directories, the possible arguments are:
+
+    artist: the artist name <string>
+    type: music type <string>
+    release_year: <int>
+    album: the album name <string>
+
+For track names, some additional arguments can be used:
+
+    track_num: <int>
+    track_title: <string>
+
+If one or more of the created directory is not wanted, the format string argument can be set
+to an empty string. Using the default variable, the command would look like:
+
+    $ bandcampdl -u 'http://stillmuzik.bandcamp.com/album/rage-against-my-computer' -a '%(artist)s' -b '%(release_year)4d -t '%(track_num)02d - %(track_title)s'
 

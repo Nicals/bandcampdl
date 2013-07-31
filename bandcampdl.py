@@ -24,8 +24,6 @@
 #      (not the streaming case)
 #    + select file format when available (for now, only mp3 is downloaded
 #      and bandcampdl tries to get the better quality.
-#    + configurable file names
-#    + configurable name for created files and directories
 #    + download an album from a random page
 #    + audio file metadata
 #
@@ -52,6 +50,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Bandcamp album downloader')
     parser.add_argument('-u', '--url', type=str, required=True, help='Url to bandcamp album')
     parser.add_argument('-o', '--output', type=str, required=False, default=os.getcwd(), help='Output directory')
+    parser.add_argument('-a', '--artist', type=str, required=False, default='%(artist)s', help='Artist directory format string')
+    parser.add_argument('-b', '--album', type=str, required=False, default='%(release_year)4d - %(album)s', help='Album directory format string')
+    parser.add_argument('-t', '--track', type=str, required=False, default='%(track_num)02d - %(track_title)s', help='Track filename format strint')
 
     args = parser.parse_args()
 
@@ -64,13 +65,15 @@ if __name__ == '__main__':
     m = album_data_regex.findall(result)
     album_definition = json.loads(m[0])
 
-    artist_name = album_definition['artist']
-    album_title = album_definition['title']
-    album_type = album_definition['type']
-    album_release_date = datetime.datetime.strptime(album_definition['release_date'], '%d %b %Y %H:%M:%S %Z')
+    album_format_args = {
+        'artist':album_definition['artist'],
+        'type':album_definition['type'],
+        'release_year':datetime.datetime.strptime(album_definition['release_date'], '%d %b %Y %H:%M:%S %Z').year,
+        'album':album_definition['title'],
+    }
 
     # prepare directory to download tracks
-    album_dirpath = os.path.join(os.path.abspath(args.output), artist_name, '%4d - %s' % (album_release_date.year, album_title))
+    album_dirpath = os.path.join(os.path.abspath(args.output), args.artist % album_format_args, args.album % album_format_args)
     try:
         os.makedirs(album_dirpath, 0755)
     # if the directory already exists
@@ -78,7 +81,7 @@ if __name__ == '__main__':
         # errno = 17 if the directory already exists
         if e.errno != 17:
             raise
-    print 'downloading %s album (%s) in %s' % (artist_name, album_title, album_dirpath)
+    print ('downloading %(artist)s album (%(album)s) in ' + album_dirpath) % album_format_args
 
     # get tracks
     trackinfo_regex = re.compile(r'trackinfo\s*:\s*(\[.+\]),\s*playing_from')
@@ -112,10 +115,8 @@ if __name__ == '__main__':
         #   license_type: may be usefull
         #   has_free_download: dunno
         #
-        track_num = track_definition['track_num']
-        track_title = track_definition['title']
-
-        filename = '%02d - %s.mp3' % (int(track_num), track_title)
+        album_format_args['track_num'] = track_definition['track_num']
+        album_format_args['track_title'] = track_definition['title']
 
         # get highest mp3 quality
         urls = track_definition['file']
@@ -127,6 +128,7 @@ if __name__ == '__main__':
 
         start_time = int(round(time.time() * 1000))
 
+        filename = args.track % album_format_args
         f = open(os.path.join(album_dirpath, filename), 'wb')
 
         while True:
