@@ -119,8 +119,9 @@ if __name__ == '__main__':
         album_format_args['track_title'] = track_definition['title']
 
         # get highest mp3 quality
+        audio_file_extension = 'mp3'
         urls = track_definition['file']
-        file_url = sorted([urls[a] for a in urls.keys() if 'mp3' in a])[0]
+        file_url = sorted([urls[a] for a in urls.keys() if audio_file_extension in a])[0]
 
         response = get_url_response(file_url)
         total_size = int(response.info().getheader('Content-Length').strip())
@@ -128,7 +129,7 @@ if __name__ == '__main__':
 
         start_time = int(round(time.time() * 1000))
 
-        filename = args.track % album_format_args
+        filename = '%s.%s' % (args.track % album_format_args, audio_file_extension)
         f = open(os.path.join(album_dirpath, filename), 'wb')
 
         while True:
