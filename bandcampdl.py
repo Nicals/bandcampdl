@@ -53,6 +53,7 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--artist', type=str, required=False, default='%(artist)s', help='Artist directory format string')
     parser.add_argument('-b', '--album', type=str, required=False, default='%(release_year)4d - %(album)s', help='Album directory format string')
     parser.add_argument('-t', '--track', type=str, required=False, default='%(track_num)02d - %(track_title)s', help='Track filename format strint')
+    parser.add_argument('-s', '--simulate', action='store_true', help='Don\'t download any file.')
 
     args = parser.parse_args()
 
@@ -81,7 +82,10 @@ if __name__ == '__main__':
         # errno = 17 if the directory already exists
         if e.errno != 17:
             raise
-    print ('downloading %(artist)s album (%(album)s) in ' + album_dirpath) % album_format_args
+    print (('Will download' if args.simulate else 'Downloading') + ' %(artist)s album (%(album)s) in ' + album_dirpath) % album_format_args
+
+    if args.simulate:
+        sys.exit(0)
 
     # get tracks
     trackinfo_regex = re.compile(r'trackinfo\s*:\s*(\[.+\]),\s*playing_from')
